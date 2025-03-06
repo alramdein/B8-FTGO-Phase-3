@@ -9,6 +9,7 @@ import (
 	"hacktiv/usecase"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -40,11 +41,24 @@ import (
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
+
+// hanya di exekusi 1x
 func main() {
 	db, err := gorm.Open(postgres.Open(ComposeConnStr()), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+
+	// config conneciton pooling
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxIdleTime(time.Hour)
 
 	db.AutoMigrate(&model.User{}, &model.Role{}, &model.UserRole{})
 
