@@ -2,7 +2,8 @@ package grpc
 
 import (
 	"context"
-	userPB "hacktiv/pb/user"
+
+	userPB "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/pb/user"
 )
 
 type server struct {

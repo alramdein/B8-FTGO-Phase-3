@@ -6,6 +6,8 @@ import (
 	"hacktiv/model"
 
 	"hacktiv/repository"
+
+	userPB "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/pb/user"
 )
 
 type productUsecase struct {

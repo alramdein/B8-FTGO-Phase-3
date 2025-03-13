@@ -3,11 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	httpHandler "hacktiv/handler/http"
-	"hacktiv/middleware"
-	"hacktiv/model"
-	"hacktiv/repository"
-	"hacktiv/usecase"
 	"log"
 	"net"
 	"net/http"
@@ -15,15 +10,21 @@ import (
 	"os/signal"
 	"time"
 
+	httpHandler "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/handler/http"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/middleware"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/model"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/repository"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/usecase"
+
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	_ "hacktiv/docs"
-	grpcHandler "hacktiv/handler/grpc"
-	userPB "hacktiv/pb/user"
+	_ "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/docs"
+	grpcHandler "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/handler/grpc"
+	userPB "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/pb/user"
 
 	_ "github.com/joho/godotenv/autoload"
 	"gorm.io/driver/postgres"
@@ -94,9 +95,8 @@ func InitHTTPServer(db *gorm.DB, errCh chan error) {
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	dbTransactioner := repository.NewDBTransactioner(db)
 	userRepo := repository.NewUserRepository(db)
-	userUseacase := usecase.NewUserUsecase(userRepo, dbTransactioner)
+	userUseacase := usecase.NewUserUsecase(userRepo)
 	userHandler := httpHandler.NewUserHandler(userUseacase)
 
 	userHandler.RegisterUserRoutes(e)

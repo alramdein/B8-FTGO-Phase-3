@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"hacktiv/utils"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/utils"
 
 	"github.com/labstack/echo/v4"
 )

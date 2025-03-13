@@ -1,8 +1,8 @@
 package utils
 
 import (
-	handler "hacktiv/handler/http"
-	"hacktiv/usecase"
+	handler "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/handler/http"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/usecase"
 
 	"github.com/labstack/echo/v4"
 )

@@ -2,10 +2,9 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
-	"hacktiv/model"
-	"hacktiv/usecase"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/model"
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/usecase"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,10 +22,6 @@ func NewUserHandler(userUsecase usecase.IUserUsecase) userHandler {
 func (u userHandler) RegisterUserRoutes(e *echo.Echo) {
 	e.GET("/users", u.GetAllUserHandler)
 	e.POST("/users", u.CreateUserHandler)
-	e.PUT("/users/:id", u.UpdateUserHandler)
-	e.DELETE("/users/:id", u.DeleteUserHandler)
-
-	e.POST("/users/transaction-example", u.TransactionExampleHandler)
 }
 
 // ShowAccount godoc
@@ -71,46 +66,4 @@ func (u userHandler) GetAllUserHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"users": users,
 	})
-}
-
-func (u userHandler) UpdateUserHandler(c echo.Context) error {
-	return nil
-}
-
-func (u userHandler) DeleteUserHandler(c echo.Context) error {
-	id := c.Param("id")
-	idNum, err := strconv.Atoi(id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-			"message": err.Error(),
-		})
-	}
-
-	err = u.userUsecase.DeleteUser(c.Request().Context(), int64(idNum))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"message": err.Error(),
-		})
-	}
-
-	return nil
-}
-
-func (u userHandler) TransactionExampleHandler(c echo.Context) error {
-	var user model.User
-	err := c.Bind(&user)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-			"message": err.Error(),
-		})
-	}
-
-	err = u.userUsecase.TransactionExample(c.Request().Context(), user)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"message": err.Error(),
-		})
-	}
-
-	return nil
 }

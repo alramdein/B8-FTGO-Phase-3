@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"hacktiv/model"
+
+	"github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/model"
 
 	"gorm.io/gorm"
 )
