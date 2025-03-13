@@ -7,12 +7,12 @@ import (
 
 	"hacktiv/repository"
 
-	userPB "github.com/alramdein/B8-FTGO-Phase-3/D8-demo-grpc/user-service/pb/user"
+	userPB "hacktiv/pb/user"
 )
 
 type productUsecase struct {
 	productRepo repository.IProductRepository
-	userClient  userPB.UserClient
+	userClient  userPB.UserServiceClient
 }
 
 type IProductUsecase interface {
@@ -20,9 +20,10 @@ type IProductUsecase interface {
 	GetAllProducts(ctx context.Context) ([]model.Product, error)
 }
 
-func NewProductUsecase(productRepo repository.IProductRepository, dbTransactioner repository.DBTransactioner) IProductUsecase {
+func NewProductUsecase(productRepo repository.IProductRepository, userClient userPB.UserServiceClient) IProductUsecase {
 	return &productUsecase{
 		productRepo: productRepo,
+		userClient:  userClient,
 	}
 }
 
@@ -35,8 +36,17 @@ func (u *productUsecase) CreateProduct(ctx context.Context, product model.Produc
 func (u *productUsecase) GetAllProducts(ctx context.Context) ([]model.Product, error) {
 	// berisi logic business (validation, etc)
 	// ....
+
+	// MISALNYA USER CLIENT BUAT VALIDATE TOKEN
+	users, err := u.userClient.ListUsers(ctx, &userPB.ListUsersRequest{})
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	fmt.Println("Users dari grpc: ", users)
+
 	var products []model.Product
-	products, err := u.productRepo.GetAllProducts(ctx)
+	products, err = u.productRepo.GetAllProducts(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return products, err

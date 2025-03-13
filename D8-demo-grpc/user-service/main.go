@@ -72,7 +72,7 @@ func main() {
 	}()
 
 	go func() {
-		InitGrpcServer(errCh)
+		InitGrpcServer(db, errCh)
 	}()
 
 	<-quitCh
@@ -106,7 +106,7 @@ func InitHTTPServer(db *gorm.DB, errCh chan error) {
 	errCh <- e.Start(":" + os.Getenv("PORT"))
 }
 
-func InitGrpcServer(errChan chan error) {
+func InitGrpcServer(db *gorm.DB, errChan chan error) {
 	port := ":1234" // pake env
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
@@ -117,7 +117,10 @@ func InitGrpcServer(errChan chan error) {
 		grpc.UnaryInterceptor(withAuth),
 	}
 
-	userSvc := grpcHandler.NewUserGrpcServer()
+	userRepo := repository.NewUserRepository(db)
+	userUseacase := usecase.NewUserUsecase(userRepo)
+
+	userSvc := grpcHandler.NewUserGrpcServer(userUseacase)
 	gprcServer := grpc.NewServer(opts...)
 
 	userPB.RegisterUserServiceServer(gprcServer, userSvc)

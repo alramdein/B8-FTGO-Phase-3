@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
+	grpcClient "hacktiv/client/grpc"
 	_ "hacktiv/docs"
 	grpcHandler "hacktiv/handler/grpc"
 	userPB "hacktiv/pb/user"
@@ -47,7 +48,7 @@ func main() {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	sqlDB.SetConnMaxIdleTime(time.Hour)
 
-	db.AutoMigrate(&model.User{}, &model.Role{}, &model.UserRole{})
+	db.AutoMigrate(&model.Product{}, &model.Role{})
 
 	sigCh := make(chan os.Signal, 1)
 	errCh := make(chan error, 1)
@@ -94,12 +95,19 @@ func InitHTTPServer(db *gorm.DB, errCh chan error) {
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	dbTransactioner := repository.NewDBTransactioner(db)
-	userRepo := repository.NewUserRepository(db)
-	userUseacase := usecase.NewUserUsecase(userRepo, dbTransactioner)
-	userHandler := httpHandler.NewUserHandler(userUseacase)
+	grpcConn, err := grpcClient.NewGRPCClient(":1234")
+	if err != nil {
+		panic(err)
+	}
+	defer grpcConn.Close()
 
-	userHandler.RegisterUserRoutes(e)
+	userClient := userPB.NewUserServiceClient(grpcConn)
+
+	userRepo := repository.NewProductRepository(db)
+	userUseacase := usecase.NewProductUsecase(userRepo, userClient)
+	userHandler := httpHandler.NewProductHandler(userUseacase)
+
+	userHandler.RegisterProductRoutes(e)
 
 	// e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 
@@ -107,7 +115,7 @@ func InitHTTPServer(db *gorm.DB, errCh chan error) {
 }
 
 func InitGrpcServer(errChan chan error) {
-	port := ":1234" // pake env
+	port := ":5678" // pake env
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		panic(err)

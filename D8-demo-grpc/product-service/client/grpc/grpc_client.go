@@ -18,12 +18,11 @@ func NewGRPCClient(address string) (*grpc.ClientConn, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
 
 	return conn, nil
 }
 
 func withAuth(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-	newCtx := metadata.AppendToOutgoingContext(ctx, "authorization", "123")
+	newCtx := metadata.AppendToOutgoingContext(ctx, "authorization", "kajnfjanfandfkljadnALIF")
 	return invoker(newCtx, method, req, reply, cc, opts...)
 }
